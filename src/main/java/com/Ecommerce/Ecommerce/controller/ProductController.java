@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,19 +24,33 @@ public class ProductController {
         return "ac";
     }
     @PostMapping("/addProduct")
-    public ResponseEntity<Object> addProduct(@Valid @RequestBody Product product, BindingResult bindingResult) {
+    public ResponseEntity<Object> addProduct(
+            @RequestParam("name") String name,
+            @RequestParam("category") String category,
+            @RequestParam("product_quantity") int productQuantity,
+            @RequestParam("product_ratings") int productRatings,
+            @RequestParam("product_price") double productPrice,
+            @RequestParam("image") MultipartFile file) throws IOException {
+
         // Validate the incoming product object
-        if (bindingResult.hasErrors()) {
-            // If validation fails, return the validation errors in the response
-            return ResponseEntity.badRequest().body(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+//        if (bindingResult.hasErrors()) {
+//            // If validation fails, return the validation errors in the response
+//            return ResponseEntity.badRequest().body(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+//        }
+
+        // Try to save the product
+        Product savedProduct = service.saveProduct(name, category, productQuantity, productRatings, productPrice, file);
+
+        // Check if the saving process was successful
+        if (savedProduct != null) {
+            // Return the saved product in the response
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
+        } else {
+            // If saving failed, return an appropriate response
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to save the product.");
         }
-
-        // If validation passes, save the product
-        Product savedProduct = service.saveProduct(product);
-
-        // Return the saved product in the response
-        return ResponseEntity.ok(savedProduct);
     }
+
 
     @PostMapping("/addProducts")
     public List<Product> addProducts(@RequestBody List<Product> products) {

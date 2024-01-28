@@ -4,7 +4,10 @@ import com.Ecommerce.Ecommerce.Entity.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.Ecommerce.Ecommerce.repository.ProductRepository;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.sound.sampled.Port;
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -12,8 +15,15 @@ public class ProductService {
     @Autowired
     private ProductRepository repository;
 
-    public Product saveProduct(Product product){
-        return repository.save(product);
+    public Product saveProduct(String name, String category, int productQuantity, int productRatings, double productPrice, MultipartFile imageFile) throws IOException {
+        Product product1 = new Product();
+        product1.setName(name);
+        product1.setCategory(category);
+        product1.setProduct_quantity(productQuantity);
+        product1.setProduct_ratings(productRatings);
+        product1.setProduct_price(productPrice);
+        product1.setImage(imageFile.getBytes());
+        return repository.save(product1);
     }
     public List<Product> saveProducts(List<Product> products){
         return repository.saveAll(products);
@@ -38,6 +48,7 @@ public class ProductService {
         existingProduct.setProduct_quantity(product.getProduct_quantity());
         existingProduct.setProduct_price(product.getProduct_price());
         existingProduct.setCategory(product.getCategory());
+        existingProduct.setImage(product.getImage());
         return repository.save(existingProduct);
 
     }
